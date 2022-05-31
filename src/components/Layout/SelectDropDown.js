@@ -7,7 +7,7 @@ function SelectDropDown(props) {
       className="select-drop-down"
       onClick={() => props.setShowModal(props.style)}
     >
-      <input value={props.selectedLanguage} />
+      <input value={props.selectedLanguage} readOnly />
       <div className="down-arrow">
         <DropDownArrow />
       </div>

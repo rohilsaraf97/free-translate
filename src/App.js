@@ -42,8 +42,10 @@ function App() {
   const [translatedText, setTranslatedText] = useState("");
   const [languageList, setLanguageList] = useState([]);
   const [showModal, setShowModal] = useState(null);
+  const [showLoader, setShowLoader] = useState(false);
 
   const translateText = async () => {
+    setShowLoader(true);
     let srcKey = dataObj.find(
       (record) => record.name === languageState.inputLanguage
     ).language;
@@ -55,14 +57,17 @@ function App() {
       params: { enteredText, srcKey, targetKey },
     });
 
+    setShowLoader(false);
+
     console.log(response);
 
     setTranslatedText(response.data.translations.translatedText);
   };
 
   const getLanguages = async () => {
+    setShowLoader(true);
     const response = await axios("http://localhost:8000/languages");
-    console.log(response.data);
+    setShowLoader(false);
     setDataObj(response.data);
     const arrOfLanguages = response.data.map((language) => {
       return language.name;
@@ -73,6 +78,16 @@ function App() {
   useEffect(() => {
     getLanguages();
   }, []);
+
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      if (enteredText) translateText();
+    }, 1000);
+
+    return () => {
+      clearTimeout(identifier);
+    };
+  }, [languageState]);
 
   const handleClick = () => {
     dispatchLanguageReducer({ type: "INVERT" });
@@ -90,41 +105,52 @@ function App() {
   const setOutputLanguage = (language) => {
     dispatchLanguageReducer({ type: "OUTPUT", value: language });
   };
+
+  const Loader = (
+    <div className="lds-ellipsis">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  );
   return (
     <div className="app">
-      {!showModal && (
-        <>
-          <TextBox
-            selectedLanguage={languageState.inputLanguage}
-            style="input"
-            setShowModal={setShowModal}
-            text={enteredText}
-            onChange={(e) => setEnteredText(e.target.value)}
-            onClear={clearHandler}
-          />
-          <div className="arrow-container" onClick={handleClick}>
-            <Arrows></Arrows>
-          </div>
+      {showLoader
+        ? Loader
+        : !showModal && (
+            <>
+              <TextBox
+                selectedLanguage={languageState.inputLanguage}
+                style="input"
+                setShowModal={setShowModal}
+                text={enteredText}
+                onChange={(e) => setEnteredText(e.target.value)}
+                onClear={clearHandler}
+              />
+              <div className="arrow-container" onClick={handleClick}>
+                <Arrows></Arrows>
+              </div>
 
-          <TextBox
-            selectedLanguage={languageState.outputLanguage}
-            style="output"
-            setShowModal={setShowModal}
-            text={translatedText}
-          />
-          <Button onClick={translateText} />
-        </>
-      )}
+              <TextBox
+                selectedLanguage={languageState.outputLanguage}
+                style="output"
+                setShowModal={setShowModal}
+                text={translatedText}
+              />
+              <Button onClick={translateText} />
+            </>
+          )}
 
       {showModal && (
         <Modal
           setShowModal={setShowModal}
           languages={languageList}
           onChoosingLanguage={
-            showModal == "input" ? setInputLanguage : setOutputLanguage
+            showModal === "input" ? setInputLanguage : setOutputLanguage
           }
           chosenLanguage={
-            showModal == "input"
+            showModal === "input"
               ? languageState.inputLanguage
               : languageState.outputLanguage
           }
