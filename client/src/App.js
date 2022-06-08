@@ -53,7 +53,7 @@ function App() {
       (record) => record.name === languageState.outputLanguage
     ).language;
 
-    const response = await axios("http://localhost:8000/translations", {
+    const response = await axios("http://localhost:9000/translations", {
       params: { enteredText, srcKey, targetKey },
     });
 
@@ -66,7 +66,7 @@ function App() {
 
   const getLanguages = async () => {
     setShowLoader(true);
-    const response = await axios("http://localhost:8000/languages");
+    const response = await axios("http://localhost:9000/languages");
     setShowLoader(false);
     setDataObj(response.data);
     const arrOfLanguages = response.data.map((language) => {

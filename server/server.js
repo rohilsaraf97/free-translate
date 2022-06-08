@@ -10,8 +10,7 @@ app.use(cors());
 app.get("/languages", async (req, res) => {
   const options = {
     method: "GET",
-    url:
-      "https://deep-translate1.p.rapidapi.com/language/translate/v2/languages",
+    url: "https://deep-translate1.p.rapidapi.com/language/translate/v2/languages",
     headers: {
       "X-RapidAPI-Host": process.env.API_HOST,
       "X-RapidAPI-Key": process.env.API_KEY,
